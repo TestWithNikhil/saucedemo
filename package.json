@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/TestWithNikhil/saucedemo#readme",
   "devDependencies": {
-    "@playwright/test": "^1.64.1"
+    "@playwright/test": "^1.64.1",
+    "dotenv": "^16.4.5"
   }
 }
