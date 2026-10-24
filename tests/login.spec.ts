@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../src/pages/login';
 import logger from '../src/utils/logger';
+import { testData } from '../src/utils/testData';
 
 test.describe('Login page', () => {
   test('@smoke: login page loads successfully', async ({ page }) => {
@@ -18,16 +19,17 @@ test.describe('Login page', () => {
 
   test('@regression: user can login with valid credentials', async ({ page }) => {
     const loginPage = new LoginPage(page);
-    const username = process.env.SAUCEDEMO_USERNAME || process.env.USERNAME || 'standard_user';
-    const password = process.env.SAUCEDEMO_PASSWORD || process.env.PASSWORD || 'secret_sauce';
+    const username = testData.validUser.username;
+    const password = testData.validUser.password;
 
     logger.info('Starting regression test: user can login with valid credentials');
-    logger.info(`Using credentials: username=${username}, password=${password ? '***provided***' : 'missing'}`);
 
     if (!username || !password) {
       logger.error('Missing SauceDemo credentials in environment variables.');
       throw new Error('Missing SauceDemo credentials in environment variables.');
     }
+
+    logger.info(`Using credentials: username=${username}, password=***provided***`);
 
     await loginPage.navigateTo('/');
     await loginPage.login(username, password);
@@ -39,11 +41,13 @@ test.describe('Login page', () => {
 
   test('@regression: invalid credentials show an error', async ({ page }) => {
     const loginPage = new LoginPage(page);
+    const invalidUsername = testData.invalidUser.username;
+    const invalidPassword = testData.invalidUser.password;
 
     logger.info('Starting regression test: invalid credentials show an error');
 
     await loginPage.navigateTo('/');
-    await loginPage.login('locked_out_user', 'wrong_password');
+    await loginPage.login(invalidUsername, invalidPassword);
 
     await expect(page.locator('[data-test="error"]')).toBeVisible();
     await expect(page.locator('[data-test="error"]')).toContainText(/Username and password do not match/i);
